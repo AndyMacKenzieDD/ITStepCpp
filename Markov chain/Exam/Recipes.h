@@ -11,9 +11,10 @@ class Recipes
 	chein st;
 	static int fileCounter;
 	int counter;
+	int recCounter;
 	std::vector<std::string> starterWords;
 public:
-	Recipes(std::string, int = 100);
+	Recipes(std::string, int = 100, int = 1);
 	~Recipes();
 
 	void generate() const;

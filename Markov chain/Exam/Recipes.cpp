@@ -3,8 +3,9 @@
 
 int Recipes::fileCounter = 0;
 
-Recipes::Recipes(std::string file, int cicleCounter)
+Recipes::Recipes(std::string file, int cicleCounter, int recipesCounter)
 {
+	recCounter = recipesCounter;
 	counter = cicleCounter;
 	std::ifstream in(file);
 
@@ -13,6 +14,16 @@ Recipes::Recipes(std::string file, int cicleCounter)
 
 	while (in >> tmp2)
 	{
+		if (tmp2[0] == '(')
+		{
+			std::string tmp3;
+			while (tmp2[tmp2.size() - 1] != ')' && tmp2[tmp2.size() - 2] != ')')
+			{
+				in >> tmp3;
+				tmp2 += ' ';
+				tmp2 += tmp3;
+			}
+		}
 		auto it = st.find(tmp1);
 		if (it == st.end())
 		{
@@ -32,10 +43,9 @@ Recipes::Recipes(std::string file, int cicleCounter)
 
 		tmp1 = tmp2;
 	}
-
+	
 	in.close();
 }
-
 
 Recipes::~Recipes()
 {
@@ -45,35 +55,65 @@ void Recipes::generate() const
 {
 	std::string fileName = "Recipe " + std::to_string(++fileCounter) + ".txt";
 	std::ofstream out(fileName);
-
+	
 	srand(time(0));
 
-	int randInt = rand() % starterWords.size();
-	std::string firstWard = starterWords[randInt];
-	auto block = st.find(firstWard);
-
-	for (int i = 0; i < counter; ++i)
+	for (int i = 0; i < recCounter; ++i)
 	{
-		out << block->first << " ";
+		int randInt = rand() % starterWords.size();
+		std::string firstWard = starterWords[randInt];
 
-		std::vector<std::string> second;		
-
-		for (auto it : block->second)
+		auto block = st.find(firstWard);
+		
+		for (int i = 0; i < counter; ++i)
 		{
-			for (int i = 0; i < it.second; ++i)
+			out << block->first << " ";
+
+			std::vector<std::string> second;
+			for (auto it : block->second)
 			{
-				second.push_back(it.first);
+
+				for (int i = 0; i < it.second; ++i)
+				{
+					second.push_back(it.first);
+				}
+			}
+
+			randInt = rand() % second.size();
+			block = st.find(second[randInt]);
+
+			if (i % 10 == 0 && i != 0)
+			{
+				out << std::endl;
 			}
 		}
-		
-		randInt = rand() % second.size();
-		block = st.find(second[randInt]);
-
-		if (i % 10 == 0 && i != 0)
+		int x = 0;
+		out << std::endl;
+		while (block->first[block->first.size() - 1] != '.')
 		{
-			out << std::endl;
-		}
-	}
+			out << block->first << " ";
 
+			std::vector<std::string> second;
+			for (auto it : block->second)
+			{
+
+				for (int i = 0; i < it.second; ++i)
+				{
+					second.push_back(it.first);
+				}
+			}
+
+			randInt = rand() % second.size();
+			block = st.find(second[randInt]);
+
+			++x;
+			if (x == 10)
+			{
+				x = 0;
+				out << std::endl;
+			}
+		}
+		out << block->first << std::endl;
+	}
 	out.close();
 }
